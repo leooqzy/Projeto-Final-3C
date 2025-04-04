@@ -39,4 +39,21 @@ class AuthController extends Controller
     {
         return Auth::user();
     }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user,
+        ], 200);
+    }
 }
