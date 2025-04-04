@@ -18,7 +18,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user/profile', function (Request $request) {
     return $request->user();
+
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    
+    Route::get('/user/me', [AuthController::class, 'showMe']);
+
+
+
+});
+
 
 Route::post('/login', function (Request $request) {
     $credentials = $request->only('email', 'password');
@@ -41,4 +51,5 @@ Route::post('/login', function (Request $request) {
 });
 
 Route::post('/register', [AuthController::class, 'register']);
+
 

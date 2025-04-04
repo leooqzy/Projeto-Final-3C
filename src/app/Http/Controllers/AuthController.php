@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -25,5 +26,17 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json(['token' => $token, 'user'  => $user], 201);
+    }
+
+    public function index()
+    {
+        $user = User::all();
+
+        return response()->json($user, 200);
+    }
+
+    public function showMe()
+    {
+        return Auth::user();
     }
 }
