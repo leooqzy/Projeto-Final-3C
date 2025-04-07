@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained();
-            $table->foreignId('product_id')->constrained();
-            $table->integer('quantity');
-            $table->decimal('unitPrice', 10, 2);
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('address_id')->constrained();
+            $table->foreignId('coupon_id')->nullable()->constrained();
+            $table->dateTime('orderDate');
+            $table->enum('status', ['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED']);
             $table->timestamps();
-        });
+            });
     }
 
     /**
