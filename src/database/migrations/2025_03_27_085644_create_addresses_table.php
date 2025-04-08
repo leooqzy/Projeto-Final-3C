@@ -16,8 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('street');
             $table->integer('number');
-            $table->string('neighborhood');
-            $table->string('cep');
+            $table->string('zip');
             $table->string('city');
             $table->string('state');
             $table->string('country');
