@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/create-moderator', [UserController::class, 'createModerator']);
     Route::post('/address/create', [AddressesController::class, 'create']);
     Route::get('/address/all', [AddressesController::class, 'index']);
-    Route::delete('/address/delete/{addresses}', [AddressesController::class, 'destroy']);
+    Route::delete('/address/{addresses}', [AddressesController::class, 'destroy']);
 
 });
 
