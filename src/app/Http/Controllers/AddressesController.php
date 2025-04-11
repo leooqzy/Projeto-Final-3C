@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Addresses;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AddressesController extends Controller
 {
@@ -58,6 +59,8 @@ class AddressesController extends Controller
 
     public function update(Request $request, Addresses $addresses)
     {
+
+
         $validated = $request->validate([
             'street' => 'required|string|max:255',
             'number' => 'required|integer|max:255',
@@ -66,6 +69,12 @@ class AddressesController extends Controller
             'state' => 'required|string|max:255',
             'country' => 'required|string|max:255',
         ]);
+
+        if ($addresses->user_id != Auth::user()->id) {
+            return response()->json([
+                'message' => 'You are not authorized to update this address',
+            ], 401);
+        }
 
         $addresses->update($validated);
 
