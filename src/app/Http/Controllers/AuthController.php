@@ -70,6 +70,13 @@ class AuthController extends Controller
 
     public function createModerator(Request $request)
     {
+
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot create a moderator',
+            ], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
