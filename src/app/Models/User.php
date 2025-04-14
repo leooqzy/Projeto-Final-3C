@@ -49,4 +49,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Addresses::class);
     }
+
+    public static function createAsModerator(array $attributes)
+    {
+        return static::create([
+            ...$attributes,
+            'role' => 'moderator',
+        ]);
+    }
+
 }
