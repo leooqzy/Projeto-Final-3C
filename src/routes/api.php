@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/address/{addresses}', [AddressesController::class, 'destroy']);
     Route::put('/address/{addresses}', [AddressesController::class, 'update']);
     Route::post('/categories', [CategoriesController::class, 'createCategorie']);
+    Route::put('/categories/{id}', [CategoriesController::class, 'updateCategorie']);
+    Route::delete('/categories/{id}', [CategoriesController::class, 'destroyCategorie']);
 });
 
 

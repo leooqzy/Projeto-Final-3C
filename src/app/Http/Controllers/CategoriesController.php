@@ -71,16 +71,58 @@ class CategoriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Categories $categories)
+    public function updateCategorie(Request $request, $id)
     {
-        //
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot update a category',
+            ], 403);
+        }
+    
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+        ]);
+    
+        $category = Categories::find($id);
+    
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category not found'
+            ], 404);
+        }
+    
+        $category->update($validated);
+    
+        return response()->json([
+            'message' => 'Category updated successfully',
+            'category' => $category,
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Categories $categories)
+    public function destroyCategorie(Request $request, $id)
     {
-        //
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot delete a category',
+            ], 403);
+        }
+
+        $category = Categories::find($id);
+
+        if (!$category) {
+            return response()->json([
+                'message' => 'Category not found'
+            ], 404);
+        }
+
+        $category->delete();
+
+        return response()->json([
+            'message' => 'Category deleted successfully',
+        ], 200);
     }
 }
