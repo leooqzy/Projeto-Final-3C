@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\AddressesController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoriesController;
+use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/address/create', [AddressesController::class, 'create']);
     Route::get('/address/user/{user}', [AddressesController::class, 'getUserAddresses']);
     Route::delete('/address/{addresses}', [AddressesController::class, 'destroy']);
+    Route::post('/categories', [CategoriesController::class, 'createCategorie']);
     Route::put('/address/{addresses}', [AddressesController::class, 'update']);
 });
 

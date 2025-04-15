@@ -18,9 +18,26 @@ class CategoriesController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function createCategorie(Request $request)
     {
-        //
+
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot create a category',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+        ]);
+
+        $user = Categories::create($validated);
+
+        return response()->json([
+            'message' => 'Category created successfully',
+            'category' => $user,
+        ], 201);
     }
 
     /**
