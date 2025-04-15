@@ -10,9 +10,11 @@ class CategoriesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function getAllCategories()
     {
-        //
+        $categories = Categories::all();
+
+        return response()->json($categories, 200);
     }
 
     /**

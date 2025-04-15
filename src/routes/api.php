@@ -59,5 +59,6 @@ Route::post('/login', function (Request $request) {
 });
 
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
 
 
