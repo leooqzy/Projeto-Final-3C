@@ -18,9 +18,27 @@ class ProductsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function createAnProduct(Request $request)
     {
-        //
+        if (!in_array($request->user()->role, ['admin', 'moderator'])) {
+            return response()->json([
+                'message' => 'You cannot create a product',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'stock' => 'required|integer',
+            'price' => 'required|numeric',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $product = Products::create($validated + ['category_id' => $request->category_id]);
+
+        return response()->json([
+            'message' => 'Product created successfully',
+            'product' => $product,
+        ], 201);
     }
 
     /**

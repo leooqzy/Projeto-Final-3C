@@ -3,6 +3,8 @@
 use App\Http\Controllers\AddressesController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\DiscountsController;
 use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +39,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/categories', [CategoriesController::class, 'createCategorie']);
     Route::put('/categories/{id}', [CategoriesController::class, 'updateCategorie']);
     Route::delete('/categories/{id}', [CategoriesController::class, 'destroyCategorie']);
+    Route::post('/products', [ProductsController::class, 'createAnProduct']);
+    Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
+    Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
+    Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
 });
 
 
@@ -63,5 +69,6 @@ Route::post('/login', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
 Route::get('/categories/{categories}', [CategoriesController::class, 'getCategoriesID']);
+Route::get('/discount', [DiscountsController::class, 'getAllDiscounts']);
 
 
