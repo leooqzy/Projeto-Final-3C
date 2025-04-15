@@ -45,9 +45,10 @@ class CategoriesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function getCategoriesID($id)
+    public function getCategoriesID(Request $request)
     {
-        $categories = Categories::all();
+        $categories = Categories::find($request->categories);
+
         return response()->json($categories, 200);
     }
 

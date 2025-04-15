@@ -34,7 +34,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/address/user/{user}', [AddressesController::class, 'getUserAddresses']);
     Route::delete('/address/{addresses}', [AddressesController::class, 'destroy']);
     Route::put('/address/{addresses}', [AddressesController::class, 'update']);
-    Route::get('/categories/{id}', [CategoriesController::class, 'getCategoriesID']);
     Route::post('/categories', [CategoriesController::class, 'createCategorie']);
 });
 
@@ -61,5 +60,6 @@ Route::post('/login', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
+Route::get('/categories/{categories}', [CategoriesController::class, 'getCategoriesID']);
 
 
