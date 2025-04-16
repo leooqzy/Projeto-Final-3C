@@ -120,9 +120,32 @@ class ProductsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateStock(Request $request, Products $products)
+    public function updateStockProduct(Request $request, $id)
     {
-        
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot update a stock',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'stock' => 'required|integer',
+        ]);
+
+        $product = Products::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        $product->update($validated);
+
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'Product' => $product,
+        ], 200);
     }
 
     /**
