@@ -110,7 +110,14 @@ class DiscountsController extends Controller
             ], 403);
         }
 
-        $discounts->delete();
+        $discount = Discounts::find($id);
+        if (!$discount) {
+            return response()->json([
+                'message' => 'Discount not found'
+            ], 404);
+        }
+
+        $discount->delete();
 
         return response()->json([
             'message' => 'Discount deleted successfully',
