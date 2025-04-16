@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/categories/{id}', [CategoriesController::class, 'updateCategorie']);
     Route::delete('/categories/{id}', [CategoriesController::class, 'destroyCategorie']);
     Route::post('/products', [ProductsController::class, 'createAnProduct']);
+    Route::put('/products/{id}', [ProductsController::class, 'updateProduct']);
+    Route::delete('/products/{id}', [ProductsController::class, 'destroyProduct']);
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
     Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
@@ -70,6 +72,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
 Route::get('/products', [ProductsController::class, 'getAllProducts']);
 Route::get('/products/user/{userId}', [ProductsController::class, 'getProductsByUser']);
+ROute::get('/products/category/{categoryId}', [ProductsController::class, 'getProductsByCategory']);
 Route::get('/categories/{categories}', [CategoriesController::class, 'getCategoriesID']);
 Route::get('/discount', [DiscountsController::class, 'getAllDiscounts']);
 

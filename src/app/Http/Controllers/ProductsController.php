@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categories;
 use App\Models\Products;
 use Illuminate\Http\Request;
 
@@ -29,7 +30,7 @@ class ProductsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'stock' => 'required|integer',
-            'price' => 'required|numeric',
+            'price' => 'required|:numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -52,33 +53,76 @@ class ProductsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function getProductsByCategory($categoryId)
     {
-        //
+        $products = Products::where('category_id', $categoryId)->get(['id', 'name', 'user_id']);
+        return response()->json($products);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Products $products)
+    public function updateProduct(Request $request, $id)
     {
-        //
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot update a product',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'stock' => 'required|integer',
+            'price' => 'required|:numeric',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $product = Products::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        $product->update($validated);
+
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'product' => $product,
+        ], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Products $products)
+    public function destroyProduct(Request $request, $id)
     {
-        //
+        if ($request->user()->role !== 'admin') {
+            return response()->json([
+                'message' => 'You cannot delete a product',
+            ], 403);
+        }
+
+        $product = Products::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully',
+        ], 200);
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Products $products)
+    public function updateStock(Request $request, Products $products)
     {
-        //
+        
     }
 
     /**
