@@ -10,9 +10,9 @@ class ProductsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function getAllProducts(Request $request)
     {
-        //
+        return Products::all();
     }
 
     /**
@@ -20,7 +20,7 @@ class ProductsController extends Controller
      */
     public function createAnProduct(Request $request)
     {
-        if (!in_array($request->user()->role, ['admin', 'moderator'])) {
+        if ($request->user()->role !== 'admin') {
             return response()->json([
                 'message' => 'You cannot create a product',
             ], 403);
@@ -33,12 +33,20 @@ class ProductsController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $product = Products::create($validated + ['category_id' => $request->category_id]);
+        $product = Products::create($validated + [
+            'user_id' => $request->user()->id,
+        ]);
 
         return response()->json([
             'message' => 'Product created successfully',
             'product' => $product,
         ], 201);
+    }
+
+    public function getProductsByUser($userId)
+    {
+        $products = Products::where('user_id', $userId)->get(['id', 'name', 'user_id']);
+        return response()->json($products);
     }
 
     /**

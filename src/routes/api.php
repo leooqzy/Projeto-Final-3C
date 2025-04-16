@@ -68,6 +68,8 @@ Route::post('/login', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
+Route::get('/products', [ProductsController::class, 'getAllProducts']);
+Route::get('/products/user/{userId}', [ProductsController::class, 'getProductsByUser']);
 Route::get('/categories/{categories}', [CategoriesController::class, 'getCategoriesID']);
 Route::get('/discount', [DiscountsController::class, 'getAllDiscounts']);
 
