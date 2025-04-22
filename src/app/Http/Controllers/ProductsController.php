@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Controllers;
@@ -22,7 +21,7 @@ class ProductsController extends Controller
      */
     public function createAnProduct(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!in_array($request->user()->role, ['admin', 'moderator'])) {
             return response()->json([
                 'message' => 'You cannot create a product',
             ], 403);
@@ -60,12 +59,24 @@ class ProductsController extends Controller
         return response()->json($products);
     }
 
+    // Retorna um produto específico pelo ID
+    public function showProduct($id)
+    {
+        $product = Products::find($id);
+        if (!$product) {
+            return response()->json([
+                'message' => 'Product not found'
+            ], 404);
+        }
+        return response()->json($product, 200);
+    }
+
     /**
      * Display the specified resource.
      */
     public function updateProduct(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!in_array($request->user()->role, ['admin', 'moderator'])) {
             return response()->json([
                 'message' => 'You cannot update a product',
             ], 403);
@@ -123,7 +134,7 @@ class ProductsController extends Controller
      */
     public function updateStockProduct(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!in_array($request->user()->role, ['admin', 'moderator'])) {
             return response()->json([
                 'message' => 'You cannot update a stock',
             ], 403);

@@ -13,8 +13,20 @@ class AddressesController extends Controller
      * Display a listing of the resource.
      */
 
+
+    public function myAddresses(Request $request)
+    {
+        $user = $request->user();
+        $addresses = $user->addresses;
+        return response()->json($addresses, 200);
+    }
+
     public function getUserAddresses(User $user)
     {
+        $authUser = auth()->user();
+        if ($authUser->role !== 'admin' && $authUser->id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         $addresses = $user->addresses;
         return response()->json($addresses, 200);
     }
@@ -23,7 +35,7 @@ class AddressesController extends Controller
     {
         $validated = $request->validate([
             'street' => 'required|string|max:255',
-            'number' => 'required|integer|max:255',
+            'number' => 'required|integer',
             'zip' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
@@ -44,7 +56,7 @@ class AddressesController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->id !== $addresses->user_id) {
+        if ($user->role !== 'admin' && $user->id !== $addresses->user_id) {
             return response()->json([
                 'message' => 'You are not authorized to delete this address',
             ], 401);
@@ -70,7 +82,7 @@ class AddressesController extends Controller
             'country' => 'required|string|max:255',
         ]);
 
-        if ($addresses->user_id != Auth::user()->id) {
+        if (Auth::user()->role !== 'admin' && $addresses->user_id != Auth::user()->id) {
             return response()->json([
                 'message' => 'You are not authorized to update this address',
             ], 401);
@@ -82,6 +94,17 @@ class AddressesController extends Controller
             'message' => 'Address updated successfully',
             'addresses' => $addresses,
         ], 200);
+    }
+
+    public function show(Addresses $addresses)
+    {
+        $user = auth()->user();
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'message' => 'Only admin can view this address',
+            ], 403);
+        }
+        return response()->json($addresses, 200);
     }
 
 }
