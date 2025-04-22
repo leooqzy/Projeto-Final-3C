@@ -32,7 +32,29 @@ class CartsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        \Log::info('DEBUG usuario autenticado', ['user' => $request->user()]);
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $cart = \App\Models\Carts::where('user_id', $user->id)->first();
+        if ($cart) {
+            return response()->json([
+                'message' => 'Carrinho já existe para o usuário',
+                'cart' => $cart
+            ], 200);
+        }
+
+        $cart = new \App\Models\Carts();
+        $cart->user_id = $user->id;
+        $cart->createdAt = now();
+        $cart->save();
+
+        return response()->json([
+            'message' => 'Carrinho criado com sucesso',
+            'cart' => $cart
+        ], 201);
     }
 
     /**
@@ -60,16 +82,7 @@ class CartsController extends Controller
      */
     public function update(Request $request, Carts $carts)
     {
-        $user = $request->user();
-        if (!$user || $carts->user_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-        // Atualize os campos necessários
-        $validated = $request->validate([
-            // Adicione as validações necessárias para atualização
-        ]);
-        $carts->update($validated);
-        return response()->json(['message' => 'Cart updated successfully', 'cart' => $carts]);
+
     }
 
     /**

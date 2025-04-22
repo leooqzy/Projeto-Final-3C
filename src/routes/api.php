@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\DiscountsController;
+use App\Http\Controllers\CartsController;
+use App\Http\Controllers\CartitemsController;
 use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,6 +57,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
     Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
+    // ROTAS DE CARRINHO
+    Route::post('/carts', [CartsController::class, 'store']);
+    Route::get('/carts', [CartsController::class, 'index']);
+    Route::get('/carts/{carts}', [CartsController::class, 'show']);
+    Route::put('/carts/{carts}', [CartsController::class, 'update']);
+    Route::delete('/carts/{carts}', [CartsController::class, 'destroy']);
+    // ROTAS DE ITENS DO CARRINHO
+    Route::post('/cart-items', [CartitemsController::class, 'store']);
+    Route::get('/cart-items', [CartitemsController::class, 'index']);
+    Route::delete('/cart-items/{cartitem}', [CartitemsController::class, 'destroy']);
 });
 
 
@@ -78,6 +90,7 @@ Route::post('/login', function (Request $request) {
 
 });
 
+//ROTAS PUBLICAS
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
 Route::get('/products', [ProductsController::class, 'getAllProducts']);
