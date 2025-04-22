@@ -57,16 +57,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
     Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
-    // ROTAS DE CARRINHO
-    Route::post('/carts', [CartsController::class, 'store']);
-    Route::get('/carts', [CartsController::class, 'index']);
-    Route::get('/carts/{carts}', [CartsController::class, 'show']);
-    Route::put('/carts/{carts}', [CartsController::class, 'update']);
-    Route::delete('/carts/{carts}', [CartsController::class, 'destroy']);
-    // ROTAS DE ITENS DO CARRINHO
-    Route::post('/cart-items', [CartitemsController::class, 'store']);
-    Route::get('/cart-items', [CartitemsController::class, 'index']);
-    Route::delete('/cart-items/{cartitem}', [CartitemsController::class, 'destroy']);
+    // CART ROUTES (ENGLISH NAMING)
+    Route::get('/cart', [CartsController::class, 'getCart']); // Get user cart
+    Route::post('/cart', [CartsController::class, 'createCart']); // Create cart (only one per user)
+    Route::get('/cart/items', [CartitemsController::class, 'index']); // Get cart items
+    Route::post('/cart/items', [CartitemsController::class, 'store']); // Add item to cart
+    Route::put('/cart/items', [CartitemsController::class, 'update']); // Update item quantity
+    Route::delete('/cart/items', [CartitemsController::class, 'destroy']); // Remove item from cart
+    Route::delete('/cart/clear', [CartsController::class, 'clearCart']); // Clear cart
+
 });
 
 
