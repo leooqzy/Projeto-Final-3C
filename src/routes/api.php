@@ -5,12 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\DiscountsController;
-<<<<<<< HEAD
-=======
 use App\Http\Controllers\CartsController;
 use App\Http\Controllers\CartitemsController;
->>>>>>> novo
-use App\Models\categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -59,11 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/products/{id}', [ProductsController::class, 'destroyProduct']);
     Route::get('/products/user/{userId}', [ProductsController::class, 'getProductsByUser']);
     Route::put('/products/{id}/stock', [ProductsController::class, 'updateStockProduct']);
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> novo
     // ROTAS DE DESCONTO
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);

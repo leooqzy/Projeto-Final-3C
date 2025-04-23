@@ -12,11 +12,11 @@ class CartsController extends Controller
     {
         $user = $request->user();
         if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['detail' => [['msg' => 'Unauthorized', 'type' => 'auth']]], 401);
         }
         $cart = Carts::where('user_id', $user->id)->first();
         if (!$cart) {
-            return response()->json(['message' => 'No cart found for this user'], 404);
+            return response()->json(['detail' => [['msg' => 'No cart found for this user', 'type' => 'not_found']]], 404);
         }
         return response()->json($cart);
     }
@@ -27,7 +27,12 @@ class CartsController extends Controller
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-        $cart = Carts::firstOrCreate(['user_id' => $user->id], [
+        $cart = Carts::where('user_id', $user->id)->first();
+        if ($cart) {
+            return response()->json(['message' => 'You already have a cart'], 400);
+        }
+        $cart = Carts::create([
+            'user_id' => $user->id,
             'createdAt' => now(),
         ]);
         return response()->json($cart, 201);

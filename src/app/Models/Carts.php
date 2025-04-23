@@ -13,4 +13,9 @@ class Carts extends Model
         'createdAt',
         'user_id',
     ];
+
+    public function cartitems()
+    {
+        return $this->hasMany(Cartitem::class, 'cart_id');
+    }
 }
