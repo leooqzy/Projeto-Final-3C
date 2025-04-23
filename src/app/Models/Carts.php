@@ -10,6 +10,7 @@ class Carts extends Model
     use HasFactory;
 
     protected $fillable = [
-        'created_at',
+        'createdAt',
+        'user_id',
     ];
 }

@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 class CartsController extends Controller
 {
 
-    // Get the user's cart
     public function getCart(Request $request)
     {
         $user = $request->user();
@@ -22,7 +21,6 @@ class CartsController extends Controller
         return response()->json($cart);
     }
 
-    // Create a cart for the user (only one allowed)
     public function createCart(Request $request)
     {
         $user = $request->user();
@@ -35,7 +33,6 @@ class CartsController extends Controller
         return response()->json($cart, 201);
     }
 
-    // Clear the cart for the user
     public function clearCart(Request $request)
     {
         $user = $request->user();

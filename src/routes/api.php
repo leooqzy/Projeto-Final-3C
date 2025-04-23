@@ -62,13 +62,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
     Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
 
-    Route::get('/cart', [CartsController::class, 'getCart']); // Get user cart
-    Route::post('/cart', [CartsController::class, 'createCart']); // Create cart (only one per user)
-    Route::get('/cart/items', [CartitemsController::class, 'index']); // Get cart items
-    Route::post('/cart/items', [CartitemsController::class, 'store']); // Add item to cart
-    Route::put('/cart/items', [CartitemsController::class, 'update']); // Update item quantity
-    Route::delete('/cart/items', [CartitemsController::class, 'destroy']); // Remove item from cart
-    Route::delete('/cart/clear', [CartsController::class, 'clearCart']); // Clear cart
+    // ROTAS DE CARRINHO
+    Route::get('/cart', [CartsController::class, 'getCart']);
+    Route::post('/cart', [CartsController::class, 'createCart']);
+    Route::get('/cart/items', [CartitemsController::class, 'index']);
+    Route::post('/cart/items', [CartitemsController::class, 'store']);
+    Route::put('/cart/items', [CartitemsController::class, 'update']);
+    Route::delete('/cart/items', [CartitemsController::class, 'destroy']);
+    Route::delete('/cart/clear', [CartsController::class, 'clearCart']);
 
 });
 
