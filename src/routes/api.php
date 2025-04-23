@@ -7,7 +7,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\DiscountsController;
 use App\Http\Controllers\CartsController;
 use App\Http\Controllers\CartitemsController;
-use App\Models\Categories;
+use App\Models\categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/me', [AuthController::class, 'update']);
     Route::post('/user/create-moderator', [AuthController::class, 'createModerator']);
     Route::delete('/user/me', [AuthController::class, 'destroy']);
+
     // ROTAS DE ENDEREÇOS
     Route::post('/address/create', [AddressesController::class, 'create']);
     Route::get('/address/me', [AddressesController::class, 'myAddresses']);
@@ -43,21 +44,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/address/{addresses}', [AddressesController::class, 'show']);
     Route::delete('/address/{addresses}', [AddressesController::class, 'destroy']);
     Route::put('/address/{addresses}', [AddressesController::class, 'update']);
+
     // ROTAS DE CATEGORIAS
     Route::post('/categories', [CategoriesController::class, 'createCategorie']);
     Route::put('/categories/{id}', [CategoriesController::class, 'updateCategorie']);
     Route::delete('/categories/{id}', [CategoriesController::class, 'destroyCategorie']);
+
     // ROTAS DE PRODUTOS
     Route::post('/products', [ProductsController::class, 'createAnProduct']);
     Route::put('/products/{id}', [ProductsController::class, 'updateProduct']);
     Route::delete('/products/{id}', [ProductsController::class, 'destroyProduct']);
     Route::get('/products/user/{userId}', [ProductsController::class, 'getProductsByUser']);
     Route::put('/products/{id}/stock', [ProductsController::class, 'updateStockProduct']);
+
     // ROTAS DE DESCONTO
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
     Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
-    // CART ROUTES (ENGLISH NAMING)
+
     Route::get('/cart', [CartsController::class, 'getCart']); // Get user cart
     Route::post('/cart', [CartsController::class, 'createCart']); // Create cart (only one per user)
     Route::get('/cart/items', [CartitemsController::class, 'index']); // Get cart items
