@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\DiscountsController;
 use App\Http\Controllers\CartsController;
 use App\Http\Controllers\CartitemsController;
+use App\Http\Controllers\CouponsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/items', [CartitemsController::class, 'update']);
     Route::delete('/cart/items', [CartitemsController::class, 'destroy']);
     Route::delete('/cart/clear', [CartsController::class, 'clearCart']);
+
+    // ROTAS DE CUPONS
+    Route::get('/coupons', [CouponsController::class, 'getAllCoupons']);
+    Route::post('/coupons', [CouponsController::class, 'createAnCoupon']);
+    Route::get('/coupons/{coupon}', [CouponsController::class, 'getSpecificCoupon']);
+    Route::put('/coupons/{coupon}', [CouponsController::class, 'updateCoupon']);
+    Route::delete('/coupons/{coupon}', [CouponsController::class, 'deleteCoupon']);
 
 });
 

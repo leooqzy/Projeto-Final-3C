@@ -8,17 +8,12 @@ use Illuminate\Http\Request;
 
 class ProductsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function getAllProducts(Request $request)
     {
         return Products::all();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createAnProduct(Request $request)
     {
         if (!in_array($request->user()->role, ['admin', 'moderator'])) {
@@ -28,9 +23,9 @@ class ProductsController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'stock' => 'required|integer',
-            'price' => 'required|:numeric',
+            'name'        => 'required|string|max:255',
+            'stock'       => 'required|integer',
+            'price'       => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -50,16 +45,12 @@ class ProductsController extends Controller
         return response()->json($products);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function getProductsByCategory($categoryId)
     {
         $products = Products::where('category_id', $categoryId)->get(['id', 'name', 'user_id']);
         return response()->json($products);
     }
 
-    // Retorna um produto específico pelo ID
     public function showProduct($id)
     {
         $product = Products::find($id);
@@ -71,9 +62,6 @@ class ProductsController extends Controller
         return response()->json($product, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function updateProduct(Request $request, $id)
     {
         if (!in_array($request->user()->role, ['admin', 'moderator'])) {
@@ -128,10 +116,6 @@ class ProductsController extends Controller
         ], 200);
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function updateStockProduct(Request $request, $id)
     {
         if (!in_array($request->user()->role, ['admin', 'moderator'])) {
@@ -160,11 +144,4 @@ class ProductsController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Products $products)
-    {
-        //
-    }
 }

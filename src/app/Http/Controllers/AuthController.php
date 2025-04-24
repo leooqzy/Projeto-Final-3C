@@ -20,12 +20,12 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User created successfully',
-            'user' => $user,
+            'user'    => $user,
         ], 201);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['token' => $token, 'user'  => $user], 201);
+        return response()->json(['token' => $token, 'user' => $user], 201);
     }
 
     public function index()
@@ -43,7 +43,7 @@ class AuthController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
+            'name'  => 'required|string',
             'email' => 'required|string',
         ]);
 
@@ -53,7 +53,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User updated successfully',
-            'user' => $user,
+            'user'    => $user,
         ], 200);
     }
 
@@ -64,7 +64,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User deleted successfully',
-            'user' => $user,
+            'user'    => $user,
         ], 200);
     }
 
@@ -78,8 +78,8 @@ class AuthController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
 
@@ -87,7 +87,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User created successfully',
-            'user' => $user,
+            'user'    => $user,
         ], 201);
     }
 

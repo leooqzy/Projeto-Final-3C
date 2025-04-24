@@ -15,16 +15,20 @@ class CartitemsController extends Controller
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
+
         $cart = Carts::where('user_id', $user->id)->first();
         if (!$cart) {
             return response()->json(['message' => 'No cart found for this user'], 404);
         }
+
         $items = CartItem::where('cart_id', $cart->id)->get();
         $itemsArray = [];
         $totalAmount = 0;
+
         foreach ($items as $item) {
             $product = Products::find($item->product_id);
             $imagePath = $product && property_exists($product, 'image_path') ? $product->image_path : null;
+
             $itemsArray[] = [
                 'product_id' => $item->product_id,
                 'quantity' => $item->quantity,
@@ -33,6 +37,7 @@ class CartitemsController extends Controller
                 'cart_id' => $item->cart_id,
                 'image_path' => $imagePath,
             ];
+
             $totalAmount += $item->quantity * $item->unitPrice;
         }
         $response = [
@@ -41,7 +46,7 @@ class CartitemsController extends Controller
             'items' => $itemsArray
         ];
         return response()->json($response);
-    }
+}
 
     public function store(Request $request)
     {

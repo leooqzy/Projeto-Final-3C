@@ -7,59 +7,88 @@ use Illuminate\Http\Request;
 
 class CouponsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function deleteCoupon(Request $request, $id)
     {
-        //
+        $coupon = Coupons::find($id);
+        if (!$coupon) {
+            return response()->json(['message' => 'Coupon not found'], 404);
+        }
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'You do not have permission to delete a coupon'], 403);
+        }
+        $coupon->delete();
+        return response()->json(['message' => 'Coupon deleted successfully'], 204);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function updateCoupon(Request $request, $id)
     {
-        //
+        $coupon = Coupons::find($id);
+        if (!$coupon) {
+            return response()->json(['message' => 'Coupon not found'], 404);
+        }
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'You do not have permission to update a coupon'], 403);
+        }
+
+        $validated = $request->validate([
+            'code' => 'sometimes|required|string|unique:coupons,code,' . $id,
+            'discount_percentage' => 'sometimes|required|numeric|min:0|max:30',
+            'start_date' => 'sometimes|required|date',
+            'end_date' => 'sometimes|required|date|after_or_equal:start_date',
+        ]);
+
+        if (isset($validated['code'])) {
+            $coupon->code = $validated['code'];
+        }
+        if (isset($validated['discount_percentage'])) {
+            $coupon->discountPercentage = $validated['discount_percentage'];
+        }
+        if (isset($validated['start_date'])) {
+            $coupon->startDate = $validated['start_date'];
+        }
+        if (isset($validated['end_date'])) {
+            $coupon->endDate = $validated['end_date'];
+        }
+
+        $coupon->save();
+        return response()->json($coupon);
+    }
+    public function getSpecificCoupon($id)
+    {
+        $coupon = Coupons::find($id);
+        if (!$coupon) {
+            return response()->json(['message' => 'Coupon not found'], 404);
+        }
+        return response()->json($coupon);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function getAllCoupons()
     {
-        //
+        $coupons = Coupons::all();
+        return response()->json($coupons);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Coupons $coupons)
+    public function createAnCoupon(Request $request)
     {
-        //
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'You do not have permission to create a coupon'], 403);
+        }
+        $validated = $request->validate([
+            'code' => 'required|string|unique:coupons,code',
+            'discount_percentage' => 'required|numeric|min:0|max:30',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $coupon = Coupons::create([
+            'code' => $validated['code'],
+            'discountPercentage' => $validated['discount_percentage'],
+            'startDate' => $validated['start_date'],
+            'endDate' => $validated['end_date'],
+        ]);
+
+        return response()->json($coupon, 201);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Coupons $coupons)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Coupons $coupons)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Coupons $coupons)
-    {
-        //
-    }
 }

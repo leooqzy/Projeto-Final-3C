@@ -7,9 +7,7 @@ use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function getAllCategories()
     {
         $categories = Categories::all();
@@ -17,9 +15,6 @@ class CategoriesController extends Controller
         return response()->json($categories, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createCategorie(Request $request)
     {
 
@@ -42,9 +37,6 @@ class CategoriesController extends Controller
         ], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function getCategoriesID(Request $request)
     {
         $categories = Categories::find($request->categories);
@@ -52,25 +44,6 @@ class CategoriesController extends Controller
         return response()->json($categories, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Categories $categories)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Categories $categories)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function updateCategorie(Request $request, $id)
     {
         if ($request->user()->role !== 'admin') {
@@ -100,9 +73,6 @@ class CategoriesController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroyCategorie(Request $request, $id)
     {
         if ($request->user()->role !== 'admin') {

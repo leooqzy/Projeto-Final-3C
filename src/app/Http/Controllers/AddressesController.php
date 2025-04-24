@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AddressesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
 
     public function myAddresses(Request $request)
     {
