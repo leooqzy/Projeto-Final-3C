@@ -59,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ROTAS DE DESCONTO
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
+    Route::get('/discount/{id}', [DiscountsController::class, 'getSpecificDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);
     Route::delete('/discount/{id}', [DiscountsController::class, 'destroyAnDiscount']);
 

@@ -7,19 +7,23 @@ use Illuminate\Http\Request;
 
 class DiscountsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function getAllDiscounts(Request $request)
     {
-        $discounts = Discounts::all();
+        $discounts = Discounts::all()->map(function($discount) {
+            return [
+                'description' => $discount->description,
+                'discountPercentage' => $discount->discountPercentage,
+                'startDate' => $discount->startDate,
+                'endDate' => $discount->endDate,
+                'product_id' => $discount->product_id,
+                'id' => $discount->id,
+            ];
+        });
 
         return response()->json($discounts, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createAnDiscount(Request $request)
     {
         if ($request->user()->role !== 'admin') {
@@ -29,46 +33,25 @@ class DiscountsController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
-            'value' => 'required|numeric',
+            'discountPercentage' => 'required|numeric',
+            'startDate' => 'required|date',
+            'endDate' => 'required|date|after_or_equal:startDate',
+            'product_id' => 'required|integer|exists:products,id',
         ]);
 
         $discount = Discounts::create($validated);
 
         return response()->json([
-            'message' => 'Discount created successfully',
-            'discount' => $discount,
+            'description' => $discount->description,
+            'discountPercentage' => $discount->discountPercentage,
+            'startDate' => $discount->startDate,
+            'endDate' => $discount->endDate,
+            'product_id' => $discount->product_id,
+            'id' => $discount->id,
         ], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Discounts $discounts)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Discounts $discounts)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function updateAnDiscount(Request $request, $id)
     {
         if ($request->user()->role !== 'admin') {
@@ -78,9 +61,11 @@ class DiscountsController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'value' => 'required|numeric',
+            'description' => 'sometimes|required|string|max:255',
+            'discountPercentage' => 'sometimes|required|numeric',
+            'startDate' => 'sometimes|required|date',
+            'endDate' => 'sometimes|required|date|after_or_equal:startDate',
+            'product_id' => 'sometimes|required|integer|exists:products,id',
         ]);
 
         $discount = Discounts::find($id);
@@ -94,14 +79,33 @@ class DiscountsController extends Controller
         $discount->update($validated);
 
         return response()->json([
-            'message' => 'Discount updated successfully',
-            'discount' => $discount,
+            'description' => $discount->description,
+            'discountPercentage' => $discount->discountPercentage,
+            'startDate' => $discount->startDate,
+            'endDate' => $discount->endDate,
+            'product_id' => $discount->product_id,
+            'id' => $discount->id,
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function getSpecificDiscount($id)
+    {
+        $discount = Discounts::find($id);
+
+        if (!$discount) {
+            return response()->json(['message' => 'Discount not found'], 404);
+        }
+
+        return response()->json([
+            'description' => $discount->description,
+            'discountPercentage' => $discount->discountPercentage,
+            'startDate' => $discount->startDate,
+            'endDate' => $discount->endDate,
+            'product_id' => $discount->product_id,
+            'id' => $discount->id,
+        ], 200);
+    }
+
     public function destroyAnDiscount(Request $request, $id)
     {
         if ($request->user()->role !== 'admin') {
@@ -120,7 +124,7 @@ class DiscountsController extends Controller
         $discount->delete();
 
         return response()->json([
-            'message' => 'Discount deleted successfully',
+            'message' => 'Discount deleted successfully'
         ], 200);
     }
 }
