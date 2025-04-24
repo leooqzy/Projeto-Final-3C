@@ -65,10 +65,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ROTAS DE CARRINHO
     Route::get('/cart', [CartsController::class, 'getCart']);
     Route::post('/cart', [CartsController::class, 'createCart']);
-    Route::get('/cart/items', [CartitemsController::class, 'index']);
-    Route::post('/cart/items', [CartitemsController::class, 'store']);
-    Route::put('/cart/items', [CartitemsController::class, 'update']);
-    Route::delete('/cart/items', [CartitemsController::class, 'destroy']);
+    Route::get('/cart/items', [CartitemsController::class, 'getItemsCart']);
+    Route::post('/cart/items', [CartitemsController::class, 'AddItemCart']);
+    Route::put('/cart/items', [CartitemsController::class, 'updateItemCart']);
+    Route::delete('/cart/items', [CartitemsController::class, 'destroyItemCart']);
     Route::delete('/cart/clear', [CartsController::class, 'clearCart']);
 
     // ROTAS DE CUPONS

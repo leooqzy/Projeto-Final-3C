@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class CartitemsController extends Controller
 {
-    public function index(Request $request)
+    public function getItemsCart(Request $request)
     {
         $user = $request->user();
         if (!$user) {
@@ -48,7 +48,7 @@ class CartitemsController extends Controller
         return response()->json($response);
 }
 
-    public function store(Request $request)
+    public function AddItemCart(Request $request)
     {
         $user = $request->user();
         if (!$user) {
@@ -85,7 +85,7 @@ class CartitemsController extends Controller
         return response()->json(['message' => 'Item added to cart successfully', 'cart_item' => $cartItem], 201);
     }
 
-    public function update(Request $request)
+    public function updateItemCart(Request $request)
     {
         $user = $request->user();
         if (!$user) {
@@ -129,7 +129,7 @@ class CartitemsController extends Controller
         return response()->json(['message' => 'Cart item quantity updated successfully!'], 200);
     }
 
-    public function destroy(Request $request)
+    public function destroyItemCart(Request $request, $id)
     {
         $user = $request->user();
         if (!$user) {
