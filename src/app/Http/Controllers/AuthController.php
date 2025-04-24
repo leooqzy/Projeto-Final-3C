@@ -19,13 +19,12 @@ class AuthController extends Controller
         $user = User::create($validated);
 
         return response()->json([
-            'message' => 'User created successfully',
-            'user'    => $user,
+            'name' => $user->name,
+            'email' => $user->email,
+            'id' => $user->id,
+            'role' => $user->role,
+            'image_path' => $user->image_path,
         ], 201);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json(['token' => $token, 'user' => $user], 201);
     }
 
     public function index()
@@ -37,23 +36,32 @@ class AuthController extends Controller
 
     public function showMe()
     {
-        return Auth::user();
+        $user = Auth::user();
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'id' => $user->id,
+            'role' => $user->role,
+            'image_path' => $user->image_path,
+        ], 200);
     }
 
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'name'  => 'required|string',
+            'name' => 'required|string',
             'email' => 'required|string',
         ]);
 
         $user = Auth::user();
-
         $user->update($validated);
 
         return response()->json([
-            'message' => 'User updated successfully',
-            'user'    => $user,
+            'name' => $user->name,
+            'email' => $user->email,
+            'id' => $user->id,
+            'role' => $user->role,
+            'image_path' => $user->image_path,
         ], 200);
     }
 
@@ -64,13 +72,12 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User deleted successfully',
-            'user'    => $user,
+            'user' => $user,
         ], 200);
     }
 
     public function createModerator(Request $request)
     {
-
         if ($request->user()->role !== 'admin') {
             return response()->json([
                 'message' => 'You cannot create a moderator',
@@ -78,17 +85,21 @@ class AuthController extends Controller
         }
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
 
         $user = User::createAsModerator($validated);
 
         return response()->json([
-            'message' => 'User created successfully',
-            'user'    => $user,
+            'name' => $user->name,
+            'email' => $user->email,
+            'id' => $user->id,
+            'role' => $user->role,
+            'image_path' => $user->image_path,
         ], 201);
     }
+
 
 }
