@@ -23,7 +23,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'id' => $user->id,
             'role' => $user->role,
-            'image_path' => $user->image_path,
+            
         ], 201);
     }
 
@@ -42,7 +42,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'id' => $user->id,
             'role' => $user->role,
-            'image_path' => $user->image_path,
+            
         ], 200);
     }
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'id' => $user->id,
             'role' => $user->role,
-            'image_path' => $user->image_path,
+            
         ], 200);
     }
 
@@ -97,7 +97,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'id' => $user->id,
             'role' => $user->role,
-            'image_path' => $user->image_path,
+            
         ], 201);
     }
 

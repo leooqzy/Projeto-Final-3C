@@ -17,4 +17,8 @@ class Orders extends Model
         'status',
         'totalAmount',
     ];
+    public function products()
+    {
+        return $this->belongsToMany(Products::class, 'orders_items', 'order_id', 'product_id');
+    }
 }

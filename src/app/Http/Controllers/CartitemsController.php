@@ -27,7 +27,7 @@ class CartitemsController extends Controller
 
         foreach ($items as $item) {
             $product = Products::find($item->product_id);
-            $imagePath = $product && property_exists($product, 'image_path') ? $product->image_path : null;
+            
 
             $itemsArray[] = [
                 'product_id' => $item->product_id,
@@ -35,7 +35,7 @@ class CartitemsController extends Controller
                 'unit_price' => $item->unitPrice,
                 'id' => $item->id,
                 'cart_id' => $item->cart_id,
-                'image_path' => $imagePath,
+                
             ];
 
             $totalAmount += $item->quantity * $item->unitPrice;

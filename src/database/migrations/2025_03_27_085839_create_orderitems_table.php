@@ -11,15 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('address_id')->constrained();
-            $table->foreignId('coupon_id')->nullable()->constrained();
-            $table->dateTime('orderDate');
-            $table->enum('status', ['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED']);
-            $table->timestamps();
-            });
+        // Migration vazia, pois a tabela será criada corretamente na migration de orders.
+        
     }
 
     /**
