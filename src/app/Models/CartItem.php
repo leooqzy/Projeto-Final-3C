@@ -15,4 +15,14 @@ class CartItem extends Model
         'quantity',
         'unitPrice'
     ];
+
+    public function cart()
+    {
+        return $this->belongsTo(Carts::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Products::class);
+    }
 }

@@ -18,4 +18,9 @@ class Categories extends Model
     {
         return $this->hasMany(Products::class);
     }
+
+    public function discounts()
+    {
+        return $this->hasMany(Discounts::class);
+    }
 }
