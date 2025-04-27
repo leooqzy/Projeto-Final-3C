@@ -60,7 +60,6 @@ class ProductsController extends Controller
             ], 404);
         }
 
-        // Pega o primeiro desconto válido (você pode ajustar para pegar o desconto atual, se quiser)
         $discount = $product->discounts->first();
 
         return response()->json([
