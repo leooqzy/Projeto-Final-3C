@@ -22,4 +22,14 @@ class Products extends Model
     {
         return $this->belongsTo(Categories::class);
     }
+
+    public function discounts()
+    {
+        return $this->hasMany(Discounts::class, 'product_id');
+    }
+
+    public function getDiscountPercentageAttribute($value)
+    {
+        return $value ?? 0;
+    }
 }

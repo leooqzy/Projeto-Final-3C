@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Orders;
 use App\Models\Carts;
 use App\Models\CartItem;
+use App\Models\Products;
+use App\Models\Coupons;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
@@ -15,15 +17,15 @@ class OrdersController extends Controller
         $orders = Orders::where('user_id', $user->id)
             ->with(['products' => function($query) {
                 $query->select(
-    'products.id',
-    'products.name',
-    'products.price as product_price',
-    'products.stock',
-    'products.category_id',
-    'products.description',
-    'orders_items.price as item_price',
-'orders_items.quantity as quantity'
-);
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.stock',
+                'products.category_id',
+                'products.description',
+                'orders_items.price as item_price',
+                'orders_items.quantity as quantity'
+            );
             }])
             ->get();
 
@@ -55,17 +57,26 @@ class OrdersController extends Controller
 
         $cart = Carts::where('user_id', $user->id)->first();
         if (!$cart) {
-            return response()->json(['message' => 'Carrinho não encontrado para este usuário.'], 404);
+            return response()->json(['message' => 'Cart not found'], 404);
         }
         $cartItems = CartItem::where('cart_id', $cart->id)->get();
         if ($cartItems->isEmpty()) {
-            return response()->json(['message' => 'O carrinho está vazio. Adicione produtos antes de fazer o pedido.'], 400);
+            return response()->json(['message' => 'Cart is empty. Add products before making the order.'], 400);
         }
 
         $validated = $request->validate([
             'address_id' => 'required|integer|exists:addresses,id',
             'coupon_id' => 'nullable|integer|exists:coupons,id',
         ]);
+
+        foreach ($cartItems as $item) {
+            $product = Products::find($item->product_id);
+            if (!$product || $product->stock < $item->quantity) {
+                return response()->json([
+                    'message' => 'Insufficient stock for product: ' . ($product ? $product->name : $item->product_id)
+                ], 400);
+            }
+        }
 
         $order = new Orders();
         $order->user_id = $user->id;
@@ -76,22 +87,33 @@ class OrdersController extends Controller
         $order->save();
 
         foreach ($cartItems as $item) {
+            $product = Products::with('discounts')->find($item->product_id);
+            $discount = 0;
+            if ($product->discounts && $product->discounts->count() > 0) {
+                $discount = $product->discounts->first()->discountPercentage ?? 0;
+            } elseif (isset($product->discount_percentage)) {
+                $discount = $product->discount_percentage;
+            }
+            $discountedPrice = $item->unitPrice * (1 - $discount / 100);
+
+            $product->stock -= $item->quantity;
+            $product->save();
             $order->products()->attach($item->product_id, [
                 'quantity' => $item->quantity,
-                'price' => $item->unitPrice
+                'price' => $discountedPrice
             ]);
         }
         $order->load(['products' => function($query) {
             $query->select(
-    'products.id',
-    'products.name',
-    'products.price as product_price',
-    'products.stock',
-    'products.category_id',
-    'products.description',
-    'orders_items.price as item_price',
-'orders_items.quantity as quantity'
-);
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.stock',
+                'products.category_id',
+                'products.description',
+                'orders_items.price as item_price',
+                'orders_items.quantity as quantity'
+            );
         }]);
 
         $response = [
@@ -111,19 +133,32 @@ class OrdersController extends Controller
         ];
 
         $subtotal = 0;
+        $desconto_produto = 0;
         foreach ($order->products as $product) {
-            $discount = isset($product->discount_percentage) ? $product->discount_percentage : 0;
-            $subtotal += $product->price * (1 - $discount / 100);
+            $unit_price = $product->price;
+            $quantity = $product->pivot->quantity ?? 1;
+            $discount = 0;
+            if ($product->discounts && $product->discounts->count() > 0) {
+                $discount = $product->discounts->first()->discountPercentage ?? 0;
+            } elseif (isset($product->discount_percentage)) {
+                $discount = $product->discount_percentage;
+            }
+            $desconto_produto += ($unit_price * $discount / 100) * $quantity;
+            $subtotal += $unit_price * $quantity;
         }
-        $total = $subtotal;
+        $valor_com_desconto_produto = $subtotal - $desconto_produto;
+        $desconto_cupom = 0;
         if ($order->coupon_id) {
             $coupon = Coupons::find($order->coupon_id);
             if ($coupon) {
-                $total = $total * (1 - $coupon->discountPercentage / 100);
+                $desconto_cupom = $valor_com_desconto_produto * ($coupon->discountPercentage / 100);
             }
         }
-        $response['total'] = round($total, 2);
+        $total = $valor_com_desconto_produto - $desconto_cupom;
         $response['subtotal'] = round($subtotal, 2);
+        $response['desconto_produto'] = round($desconto_produto, 2);
+        $response['desconto_cupom'] = round($desconto_cupom, 2);
+        $response['total'] = round($total, 2);
 
         return response()->json($response, 201);
     }
@@ -135,15 +170,15 @@ class OrdersController extends Controller
             ->where('user_id', $user->id)
             ->with(['products' => function($query) {
                 $query->select(
-    'products.id',
-    'products.name',
-    'products.price as product_price',
-    'products.stock',
-    'products.category_id',
-    'products.description',
-    'orders_items.price as item_price',
-'orders_items.quantity as quantity'
-);
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.stock',
+                'products.category_id',
+                'products.description',
+                'orders_items.price as item_price',
+                'orders_items.quantity as quantity'
+            );
             }])
             ->first();
         if (!$order) {
@@ -185,19 +220,24 @@ class OrdersController extends Controller
     public function update(Request $request, $id)
     {
         $user = $request->user();
+        if (!in_array($user->role, ['admin', 'moderator'])) {
+            return response()->json([
+                'message' => 'You do not have permission to update an order',
+            ], 403);
+        }
         $order = Orders::where('id', $id)
             ->where('user_id', $user->id)
             ->with(['products' => function($query) {
                 $query->select(
-    'products.id',
-    'products.name',
-    'products.price as product_price',
-    'products.stock',
-    'products.category_id',
-    'products.description',
-    'orders_items.price as item_price',
-'orders_items.quantity as quantity'
-);
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.stock',
+                'products.category_id',
+                'products.description',
+                'orders_items.price as item_price',
+                'orders_items.quantity as quantity'
+            );
             }])
             ->first();
         if (!$order) {
@@ -211,15 +251,15 @@ class OrdersController extends Controller
         $order->refresh();
         $order->load(['products' => function($query) {
             $query->select(
-    'products.id',
-    'products.name',
-    'products.price as product_price',
-    'products.stock',
-    'products.category_id',
-    'products.description',
-    'orders_items.price as item_price',
-'orders_items.quantity as quantity'
-);
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.stock',
+                'products.category_id',
+                'products.description',
+                'orders_items.price as item_price',
+                'orders_items.quantity as quantity'
+            );
         }]);
         $response = [
             'address_id' => $order->address_id,
@@ -235,7 +275,7 @@ class OrdersController extends Controller
                     
                     'description' => $product->description,
                     'discount_percentage' => $product->discount_percentage ?? 0,
-'quantity' => $product->quantity,
+                    'quantity' => $product->quantity,
                 ];
             }),
         ];

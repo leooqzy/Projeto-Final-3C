@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/products/{id}/stock', [ProductsController::class, 'updateStockProduct']);
 
     // ROTAS DE DESCONTO
+    Route::get('/discounts', [DiscountsController::class, 'getAllDiscounts']);
     Route::post('/discount', [DiscountsController::class, 'createAnDiscount']);
     Route::get('/discount/{id}', [DiscountsController::class, 'getSpecificDiscount']);
     Route::put('/discount/{id}', [DiscountsController::class, 'updateAnDiscount']);

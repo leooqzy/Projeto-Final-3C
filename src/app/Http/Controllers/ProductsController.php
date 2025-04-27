@@ -23,9 +23,9 @@ class ProductsController extends Controller
         }
 
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'stock'       => 'required|integer',
-            'price'       => 'required|numeric',
+            'name' => 'required|string|max:255',
+            'stock' => 'required|integer',
+            'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -53,13 +53,28 @@ class ProductsController extends Controller
 
     public function showProduct($id)
     {
-        $product = Products::find($id);
+        $product = Products::with('discounts')->find($id);
         if (!$product) {
             return response()->json([
                 'message' => 'Product not found'
             ], 404);
         }
-        return response()->json($product, 200);
+
+        // Pega o primeiro desconto válido (você pode ajustar para pegar o desconto atual, se quiser)
+        $discount = $product->discounts->first();
+
+        return response()->json([
+            'id' => $product->id,
+            'category_id' => $product->category_id,
+            'user_id' => $product->user_id,
+            'name' => $product->name,
+            'stock' => $product->stock,
+            'price' => $product->price,
+            'discount_percentage' => $discount ? $discount->discountPercentage : 0,
+            'description' => $product->description,
+            'created_at' => $product->created_at,
+            'updated_at' => $product->updated_at,
+        ], 200);
     }
 
     public function updateProduct(Request $request, $id)

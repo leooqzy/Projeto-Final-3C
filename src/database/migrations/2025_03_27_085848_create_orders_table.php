@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Tabela de pedidos
+
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status', ['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED']);
             $table->timestamps();
         });
-        // Tabela de itens do pedido (pivot)
+
         Schema::create('orders_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders');
