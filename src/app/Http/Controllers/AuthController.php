@@ -16,14 +16,15 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        $user = User::create($validated);
+        $user = User::create($validated + [
+            'role' => 'client'
+        ]);
 
         return response()->json([
             'name' => $user->name,
             'email' => $user->email,
             'id' => $user->id,
-            'role' => $user->role,
-            
+            'role' => $user->role
         ], 201);
     }
 
@@ -49,8 +50,8 @@ class AuthController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string',
+            'name' => 'sometimes|required|string',
+            'email' => 'sometimes|required|string'
         ]);
 
         $user = Auth::user();
@@ -61,7 +62,6 @@ class AuthController extends Controller
             'email' => $user->email,
             'id' => $user->id,
             'role' => $user->role,
-            
         ], 200);
     }
 
@@ -97,8 +97,26 @@ class AuthController extends Controller
             'email' => $user->email,
             'id' => $user->id,
             'role' => $user->role,
-            
         ], 201);
+    }
+
+    public function updateImage(Request $request)
+    {
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+        ]);
+
+        $user = Auth::user();
+        $imagePath = $request->file('image')->store('users', 'public');
+        $user->update(['image_path' => $imagePath]);
+
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'id' => $user->id,
+            'role' => $user->role,
+            'image_path' => $user->image_path,
+        ], 200);
     }
 
 

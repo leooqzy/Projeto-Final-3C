@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user/profile', function (Request $reque
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    // ROTAS DE PEDIDOS (ORDERS)
+    // ROTAS DE PEDIDOS
     Route::get('/orders', [OrdersController::class, 'index']);
     Route::post('/orders', [OrdersController::class, 'store']);
     Route::get('/orders/{order_id}', [OrdersController::class, 'show']);
@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/me', [AuthController::class, 'update']);
     Route::post('/user/create-moderator', [AuthController::class, 'createModerator']);
     Route::delete('/user/me', [AuthController::class, 'destroy']);
+    Route::post('/user/me/image', [AuthController::class, 'updateImage']);
 
     // ROTAS DE ENDEREÇOS
     Route::post('/address/create', [AddressesController::class, 'create']);
@@ -53,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/products/{id}', [ProductsController::class, 'destroyProduct']);
     Route::get('/products/user/{userId}', [ProductsController::class, 'getProductsByUser']);
     Route::put('/products/{id}/stock', [ProductsController::class, 'updateStockProduct']);
+    Route::put('/products/{id}/image', [ProductsController::class, 'updateImage']);
 
     // ROTAS DE DESCONTO
     Route::get('/discounts', [DiscountsController::class, 'getAllDiscounts']);

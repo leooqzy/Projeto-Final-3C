@@ -11,7 +11,12 @@ class ProductsController extends Controller
 
     public function getAllProducts(Request $request)
     {
-        return Products::all();
+        $products = Products::all();
+        $products->transform(function ($product) {
+            $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+            return $product;
+        });
+        return response()->json($products);
     }
 
     public function createAnProduct(Request $request)
@@ -42,12 +47,17 @@ class ProductsController extends Controller
         return response()->json([
             'message' => 'Product created successfully',
             'product' => $product,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
         ], 201);
     }
 
     public function getProductsByUser($userId)
     {
-        $products = Products::where('user_id', $userId)->get(['id', 'name', 'user_id']);
+        $products = Products::where('user_id', $userId)->get(['id', 'name', 'user_id', 'image']);
+        $products->transform(function ($product) {
+            $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+            return $product;
+        });
         return response()->json($products);
     }
 
@@ -79,6 +89,7 @@ class ProductsController extends Controller
             'description' => $product->description,
             'created_at' => $product->created_at,
             'updated_at' => $product->updated_at,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
         ], 200);
     }
 
@@ -93,7 +104,7 @@ class ProductsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'stock' => 'required|integer',
-            'price' => 'required|:numeric',
+            'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -160,7 +171,8 @@ class ProductsController extends Controller
 
         return response()->json([
             'message' => 'Product updated successfully',
-            'Product' => $product,
+            'product' => $product,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
         ], 200);
     }
 
@@ -174,7 +186,47 @@ class ProductsController extends Controller
             ], 404);
         }
 
-        return response()->download($product->image);
+        return response()->json([
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null
+        ]);
+
+    }
+
+    public function updateImage(Request $request, $id)
+    {
+        if (!in_array($request->user()->role, ['admin', 'moderator'])) {
+            return response()->json([
+                'message' => 'You cannot update an image',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+        ]);
+
+        $product = Products::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        if ($request->hasFile('image')) {
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $path = $request->file('image')->store('products', 'public');
+            $validated['image'] = $path;
+        }
+
+        $product->update($validated);
+
+        return response()->json([
+            'message' => 'Product image updated successfully',
+            'product' => $product,
+            'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+        ], 200);
     }
 
 }

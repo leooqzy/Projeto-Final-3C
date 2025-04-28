@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'image_path',
     ];
 
     /**
@@ -48,6 +49,16 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(Addresses::class);
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(Carts::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Orders::class);
     }
 
     public static function createAsModerator(array $attributes)

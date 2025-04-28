@@ -71,7 +71,7 @@ class AddressesController extends Controller
 
         $validated = $request->validate([
             'street' => 'required|string|max:255',
-            'number' => 'required|integer|max:255',
+            'number' => 'required|integer',
             'zip' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
