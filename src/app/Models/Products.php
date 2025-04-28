@@ -15,6 +15,7 @@ class Products extends Model
         'price',
         'category_id',
         'user_id',
+        'image',
         'discount_percentage'
     ];
 

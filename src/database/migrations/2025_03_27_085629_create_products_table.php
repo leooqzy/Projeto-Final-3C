@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->decimal('discount_percentage', 5, 2)->nullable();
             $table->text('description')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

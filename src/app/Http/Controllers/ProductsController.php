@@ -26,11 +26,17 @@ class ProductsController extends Controller
             'name' => 'required|string|max:255',
             'stock' => 'required|integer',
             'price' => 'required|numeric',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
             'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string|max:1000',
         ]);
+
+        $path = $request->file('image')->store('products', 'public');
+        unset($validated['image']);
 
         $product = Products::create($validated + [
             'user_id' => $request->user()->id,
+            'image' => $path,
         ]);
 
         return response()->json([
@@ -156,6 +162,19 @@ class ProductsController extends Controller
             'message' => 'Product updated successfully',
             'Product' => $product,
         ], 200);
+    }
+
+    public function showImage($id)
+    {
+        $product = Products::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'message' => 'Product not found'
+            ], 404);
+        }
+
+        return response()->download($product->image);
     }
 
 }
