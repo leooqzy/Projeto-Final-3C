@@ -24,9 +24,9 @@ class Products extends Model
         return $this->belongsTo(Categories::class);
     }
 
-    public function discounts()
+    public function discount()
     {
-        return $this->hasMany(Discounts::class, 'product_id');
+        return $this->hasOne(Discounts::class, 'product_id');
     }
 
     public function getDiscountPercentageAttribute($value)

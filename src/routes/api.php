@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/products/{id}', [ProductsController::class, 'destroyProduct']);
     Route::get('/products/user/{userId}', [ProductsController::class, 'getProductsByUser']);
     Route::put('/products/{id}/stock', [ProductsController::class, 'updateStockProduct']);
-    Route::put('/products/{id}/image', [ProductsController::class, 'updateImage']);
+    Route::post('/products/{id}/image', [ProductsController::class, 'updateImage']);
 
     // ROTAS DE DESCONTO
     Route::get('/discounts', [DiscountsController::class, 'getAllDiscounts']);

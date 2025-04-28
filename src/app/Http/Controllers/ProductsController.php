@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Categories;
 use App\Models\Products;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductsController extends Controller
 {
 
     public function getAllProducts(Request $request)
     {
-        $products = Products::all();
+        $products = Products::with('discount')->get();
         $products->transform(function ($product) {
+            $discount = $product->discount;
             $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+            $product->discount_percentage = $discount ? $discount->discountPercentage : 0;
             return $product;
         });
         return response()->json($products);
@@ -63,20 +66,27 @@ class ProductsController extends Controller
 
     public function getProductsByCategory($categoryId)
     {
-        $products = Products::where('category_id', $categoryId)->get(['id', 'name', 'user_id']);
+        $products = Products::with('discount')->where('category_id', $categoryId)->get();
+        $products->transform(function ($product) {
+            $discount = $product->discount;
+            $product->image_url = $product->image ? asset('storage/' . $product->image) : null;
+            $product->discount_percentage = $discount ? $discount->discountPercentage : 0;
+            $product->discount = $discount;
+            return $product;
+        });
         return response()->json($products);
     }
 
     public function showProduct($id)
     {
-        $product = Products::with('discounts')->find($id);
+        $product = Products::with('discount')->find($id);
         if (!$product) {
             return response()->json([
                 'message' => 'Product not found'
             ], 404);
         }
 
-        $discount = $product->discounts->first();
+        $discount = $product->discount;
 
         return response()->json([
             'id' => $product->id,

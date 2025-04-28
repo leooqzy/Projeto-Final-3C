@@ -35,7 +35,8 @@ class CartitemsController extends Controller
                 'unit_price' => $item->unitPrice,
                 'id' => $item->id,
                 'cart_id' => $item->cart_id,
-                
+                'image_url' => $product && $product->image ? asset('storage/' . $product->image) : null,
+                'name' => $product ? $product->name : null,
             ];
 
             $totalAmount += $item->quantity * $item->unitPrice;
@@ -129,7 +130,7 @@ class CartitemsController extends Controller
         return response()->json(['message' => 'Cart item quantity updated successfully!'], 200);
     }
 
-    public function destroyItemCart(Request $request, $id)
+    public function destroyItemCart(Request $request)
     {
         $user = $request->user();
         if (!$user) {
