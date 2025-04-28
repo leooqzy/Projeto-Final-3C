@@ -25,6 +25,7 @@ class OrdersController extends Controller
                 'products.stock',
                 'products.category_id',
                 'products.description',
+                'products.image',
                 'orders_items.price as item_price',
                 'orders_items.quantity as quantity'
             );
@@ -44,6 +45,7 @@ class OrdersController extends Controller
                         'stock' => $product->stock,
                         'category_id' => $product->category_id,
                         'description' => $product->description,
+                        'image' => $product->image ? asset('storage/' . $product->image) : null,
                     ];
                 }),
             ];
@@ -120,6 +122,7 @@ class OrdersController extends Controller
                 'products.stock',
                 'products.category_id',
                 'products.description',
+                'products.image',
                 'orders_items.price as item_price',
                 'orders_items.quantity as quantity'
             );
@@ -185,6 +188,7 @@ class OrdersController extends Controller
                 'products.stock',
                 'products.category_id',
                 'products.description',
+                'products.image',
                 'orders_items.price as item_price',
                 'orders_items.quantity as quantity'
             );
@@ -244,6 +248,7 @@ class OrdersController extends Controller
                 'products.stock',
                 'products.category_id',
                 'products.description',
+                'products.image',
                 'orders_items.price as item_price',
                 'orders_items.quantity as quantity'
             );
@@ -266,6 +271,7 @@ class OrdersController extends Controller
                 'products.stock',
                 'products.category_id',
                 'products.description',
+                'products.image',
                 'orders_items.price as item_price',
                 'orders_items.quantity as quantity'
             );
