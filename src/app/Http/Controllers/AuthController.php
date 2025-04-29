@@ -15,7 +15,16 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|min:8',
         ]);
+
+        if ($validated['password'] !== $validated['password_confirmation']) {
+            return response()->json([
+                'message' => 'As senhas não coincidem.'
+            ], 422);
+        }
+
+        unset($validated['password_confirmation']);
 
         $user = User::create($validated + [
             'role' => 'client'
@@ -53,7 +62,6 @@ class AuthController extends Controller
             'token' => $token,
         ], 200);
     }
-    
 
     public function index()
     {
@@ -118,7 +126,6 @@ class AuthController extends Controller
         ]);
 
         $user = User::createAsModerator($validated);
-
         return response()->json([
             'name' => $user->name,
             'email' => $user->email,
@@ -132,7 +139,6 @@ class AuthController extends Controller
         $validated = $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
         ]);
-
         $user = Auth::user();
         $imagePath = $request->file('image')->store('users', 'public');
         $user->update(['image_path' => $imagePath]);
@@ -145,6 +151,4 @@ class AuthController extends Controller
             'image_path' => $user->image_path,
         ], 200);
     }
-
-
 }
