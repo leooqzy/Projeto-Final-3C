@@ -111,7 +111,6 @@ class OrdersController extends Controller
         $order->orderDate = now();
         $order->status = 'PENDING';
 
-        // Calcule o subtotal e descontos dos produtos
         $subtotal = 0;
         $discount_product = 0;
         foreach ($cartItems as $item) {
@@ -139,7 +138,6 @@ class OrdersController extends Controller
                 $discount_coupon = $value_with_discount_product * $discountValue;
             }
         }
-        // Calcule o total final
         $totalAmount = $value_with_discount_product - $discount_coupon;
         $order->totalAmount = $totalAmount;
         $order->save();
@@ -291,5 +289,22 @@ class OrdersController extends Controller
         $order->products()->detach();
         $order->delete();
         return response()->json(['message' => 'Order deleted successfully'], 200);
+    }
+
+    public function updateOrder(Request $request, $id)
+    {
+        $user = $request->user();
+        $order = Orders::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+        $validated = $request->validate([
+            'status' => 'required|string|in:PENDING,SHIPPED,DELIVERED',
+        ]);
+        $order->status = $validated['status'];
+        $order->save();
+        return response()->json(['message' => 'Order updated successfully'], 200);
     }
 }
