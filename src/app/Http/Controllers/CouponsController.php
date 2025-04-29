@@ -19,23 +19,23 @@ class CouponsController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
         ]);
-        
+
         $coupon = Coupons::create([
             'code' => $validated['code'],
             'discountPercentage' => $validated['discount_percentage'],
             'startDate' => $validated['start_date'],
             'endDate' => $validated['end_date'],
         ]);
-        
+
         return response()->json($coupon, 201);
     }
-    
+
     public function getAllCoupons()
     {
         $coupons = Coupons::all();
         return response()->json($coupons);
     }
-    
+
     public function getSpecificCoupon($id)
     {
         $coupon = Coupons::find($id);
@@ -78,7 +78,7 @@ class CouponsController extends Controller
         $coupon->save();
         return response()->json($coupon);
     }
-    
+
     public function deleteCoupon(Request $request, $id)
     {
         $coupon = Coupons::find($id);
@@ -89,7 +89,7 @@ class CouponsController extends Controller
             return response()->json(['message' => 'You do not have permission to delete a coupon'], 403);
         }
         $coupon->delete();
-        return response()->json(['message' => 'Coupon deleted successfully'], 204);
+        return response()->json(['message' => 'Coupon deleted successfully'], 200);
     }
 
 
