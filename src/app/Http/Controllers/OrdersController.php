@@ -271,7 +271,12 @@ class OrdersController extends Controller
     public function destroyOrder(Request $request, $id)
     {
         $user = $request->user();
-        $order = Orders::where('id', $id)->where('user_id', $user->id)->first();
+        $order = Orders::where('id', $id)
+            ->where('user_id', $user->id)
+            ->with(['products' => function($query) {
+                $query->withPivot('quantity');
+            }])
+            ->first();
         if (!$order) {
             return response()->json(['message' => 'Order not found'], 404);
         }

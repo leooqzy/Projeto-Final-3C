@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\Route;
     Route::middleware('auth:sanctum')->group(function () {
 
     // ROTAS DE PEDIDOS
-    Route::get('/orders', [OrdersController::class, 'getOrders']);
     Route::post('/orders', [OrdersController::class, 'createOrder']);
+    Route::get('/orders', [OrdersController::class, 'getOrders']);
     Route::get('/orders/{order_id}', [OrdersController::class, 'showOrder']);
     Route::put('/orders/{order_id}', [OrdersController::class, 'updateOrder']);
     Route::delete('/orders/{order_id}', [OrdersController::class, 'destroyOrder']);
