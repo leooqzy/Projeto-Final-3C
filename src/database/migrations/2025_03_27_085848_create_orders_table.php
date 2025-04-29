@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('coupon_id')->nullable()->constrained();
             $table->dateTime('orderDate');
             $table->enum('status', ['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED']);
+            $table->decimal('totalAmount', 10, 2);
             $table->timestamps();
         });
 

@@ -33,12 +33,19 @@ class OrdersController extends Controller
             ->get();
 
         $formatted = $orders->map(function($order) {
+            $totalAmount = 0;
+            foreach ($order->products as $product) {
+                $quantity = isset($product->pivot->quantity) ? $product->pivot->quantity : 1;
+                $unitPrice = isset($product->pivot->price) ? $product->pivot->price : $product->price;
+                $totalAmount += $quantity * $unitPrice;
+            }
             return [
                 'address_id' => $order->address_id,
                 'coupon_id' => $order->coupon_id,
                 'id' => $order->id,
                 'order_date' => $order->orderDate,
                 'status' => $order->status,
+                'totalAmount' => $totalAmount,
                 'products' => $order->products->map(function($product) {
                     return [
                         'name' => $product->name,
@@ -103,6 +110,38 @@ class OrdersController extends Controller
 }
         $order->orderDate = now();
         $order->status = 'PENDING';
+
+        // Calcule o subtotal e descontos dos produtos
+        $subtotal = 0;
+        $discount_product = 0;
+        foreach ($cartItems as $item) {
+            $product = Products::with('discount')->find($item->product_id);
+            $discount = 0;
+            if ($product->discount) {
+                $discount = $product->discount->discountPercentage ?? 0;
+            } elseif (isset($product->discount_percentage)) {
+                $discount = $product->discount_percentage;
+            }
+            $unitPrice = $item->unitPrice ?? $item->price;
+            $discountedPrice = $unitPrice * (1 - $discount / 100);
+            $discount_product += ($unitPrice * $discount / 100) * $item->quantity;
+            $subtotal += $unitPrice * $item->quantity;
+        }
+        $value_with_discount_product = $subtotal - $discount_product;
+        $discount_coupon = 0;
+        if (!empty($validated['coupon_name'])) {
+            $coupon = Coupons::where('code', $validated['coupon_name'])->first();
+            if ($coupon) {
+                $discountValue = $coupon->discountPercentage;
+                if ($discountValue > 1) {
+                    $discountValue = $discountValue / 100;
+                }
+                $discount_coupon = $value_with_discount_product * $discountValue;
+            }
+        }
+        // Calcule o total final
+        $totalAmount = $value_with_discount_product - $discount_coupon;
+        $order->totalAmount = $totalAmount;
         $order->save();
 
         foreach ($cartItems as $item) {
@@ -220,108 +259,12 @@ class OrdersController extends Controller
                     'name' => $product->name,
                     'stock' => $product->stock,
                     'category_id' => $product->category_id,
+                    'price' => $product->price,
+                    'image' => $product->image,
                     'description' => $product->description,
                 ];
             }),
         ];
-
-        $subtotal = 0;
-        foreach ($order->products as $product) {
-            $discount = isset($product->discount_percentage) ? $product->discount_percentage : 0;
-            $subtotal += $product->price * (1 - $discount / 100);
-        }
-        $value_with_discount_product = $subtotal;
-        $discount_coupon = 0;
-        if ($order->coupon_id) {
-            $coupon = Coupons::find($order->coupon_id);
-            if ($coupon) {
-                $discount_coupon = $value_with_discount_product * ($coupon->discountPercentage / 100);
-            }
-        }
-        $response['total'] = round($total, 2);
-        $response['subtotal'] = round($subtotal, 2);
-        return response()->json($response, 200);
-    }
-
-    public function updateOrder(Request $request, $id)
-    {
-        $user = $request->user();
-        if (!in_array($user->role, ['admin', 'moderator'])) {
-            return response()->json([
-                'message' => 'You do not have permission to update an order',
-            ], 403);
-        }
-        $order = Orders::where('id', $id)
-            ->where('user_id', $user->id)
-            ->with(['products' => function($query) {
-                $query->select(
-                'products.id',
-                'products.name',
-                'products.price',
-                'products.stock',
-                'products.category_id',
-                'products.description',
-                'products.image',
-                'orders_items.price as item_price',
-                'orders_items.quantity as quantity'
-            );
-            }])
-            ->first();
-        if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-        $validated = $request->validate([
-            'status' => 'required|string',
-        ]);
-        $order->status = $validated['status'];
-        $order->save();
-        $order->refresh();
-        $order->load(['products' => function($query) {
-            $query->select(
-                'products.id',
-                'products.name',
-                'products.price',
-                'products.stock',
-                'products.category_id',
-                'products.description',
-                'products.image',
-                'orders_items.price as item_price',
-                'orders_items.quantity as quantity'
-            );
-        }]);
-        $response = [
-            'address_id' => $order->address_id,
-            'coupon_id' => $order->coupon_id,
-            'id' => $order->id,
-            'order_date' => $order->orderDate,
-            'status' => $order->status,
-            'products' => $order->products->map(function($product) {
-                return [
-                    'name' => $product->name,
-                    'stock' => $product->stock,
-                    'category_id' => $product->category_id,
-                    
-                    'description' => $product->description,
-                    'discount_percentage' => $product->discount_percentage ?? 0,
-                    'quantity' => $product->quantity,
-                ];
-            }),
-        ];
-
-        $subtotal = 0;
-        foreach ($order->products as $product) {
-            $discount = isset($product->discount_percentage) ? $product->discount_percentage : 0;
-            $subtotal += $product->price * (1 - $discount / 100);
-        }
-        $total = $subtotal;
-        if ($order->coupon_id) {
-            $coupon = Coupons::find($order->coupon_id);
-            if ($coupon) {
-                $total = $total * (1 - $coupon->discountPercentage / 100);
-            }
-        }
-        $response['total'] = round($total, 2);
-        $response['subtotal'] = round($subtotal, 2);
         return response()->json($response, 200);
     }
 

@@ -34,7 +34,7 @@ class DiscountsController extends Controller
 
         $validated = $request->validate([
             'description' => 'required|string|max:255',
-            'discountPercentage' => 'required|numeric',
+            'discountPercentage' => 'required|numeric|min:0|max:60',
             'startDate' => 'required|date',
             'endDate' => 'required|date|after_or_equal:startDate',
             'product_id' => 'required|integer|exists:products,id',
