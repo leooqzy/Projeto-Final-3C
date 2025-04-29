@@ -139,6 +139,7 @@ class CartitemsController extends Controller
         try {
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|integer|min:1',
             ]);
         } catch (ValidationException $e) {
             $errors = [];
@@ -163,8 +164,14 @@ class CartitemsController extends Controller
         if (!$cartItem) {
             return response()->json(['detail' => [['msg' => 'Item not found in cart', 'type' => 'not_found']]], 404);
         }
-        $cartItem->delete();
-        return response()->json(['message' => 'Item removed from cart successfully'], 200);
+        if ($validated['quantity'] < $cartItem->quantity) {
+            $cartItem->quantity -= $validated['quantity'];
+            $cartItem->save();
+            return response()->json(['message' => 'Item quantity updated successfully'], 200);
+        } else {
+            $cartItem->delete();
+            return response()->json(['message' => 'Item removed from cart successfully'], 200);
+        }
     }
 
     public function clear(Request $request)

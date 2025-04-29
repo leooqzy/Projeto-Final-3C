@@ -13,21 +13,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->get('/user/profile', function (Request $request) {
-    return $request->user();
 
+
+    Route::middleware('auth:sanctum')->get('/user/profile', function (Request $request) {
+        return $request->user();
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
 
     // ROTAS DE PEDIDOS
-    Route::get('/orders', [OrdersController::class, 'index']);
-    Route::post('/orders', [OrdersController::class, 'store']);
-    Route::get('/orders/{order_id}', [OrdersController::class, 'show']);
-    Route::put('/orders/{order_id}', [OrdersController::class, 'update']);
-    Route::delete('/orders/{order_id}', [OrdersController::class, 'destroy']);
+    Route::get('/orders', [OrdersController::class, 'getOrders']);
+    Route::post('/orders', [OrdersController::class, 'createOrder']);
+    Route::get('/orders/{order_id}', [OrdersController::class, 'showOrder']);
+    Route::put('/orders/{order_id}', [OrdersController::class, 'updateOrder']);
+    Route::delete('/orders/{order_id}', [OrdersController::class, 'destroyOrder']);
 
     // ROTAS DE USUÁRIOS
+    Route::post('/user/login', [AuthController::class, 'login']);
     Route::get('/user/me', [AuthController::class, 'showMe']);
     Route::put('/user/me', [AuthController::class, 'update']);
     Route::post('/user/create-moderator', [AuthController::class, 'createModerator']);
@@ -35,13 +37,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/me/image', [AuthController::class, 'updateImage']);
 
     // ROTAS DE ENDEREÇOS
-    Route::post('/address/create', [AddressesController::class, 'create']);
+    Route::post('/address/create', [AddressesController::class, 'createAddress']);
     Route::get('/address/me', [AddressesController::class, 'myAddresses']);
     Route::get('/user/{user}/addresses', [AddressesController::class, 'getUserAddresses']);
-    Route::get('/address/user/{user}', [AddressesController::class, 'getUserAddresses']);
-    Route::get('/address/{addresses}', [AddressesController::class, 'show']);
-    Route::delete('/address/{addresses}', [AddressesController::class, 'destroy']);
-    Route::put('/address/{addresses}', [AddressesController::class, 'update']);
+    Route::get('/address/{addresses}', [AddressesController::class, 'showAddress']);
+    Route::delete('/address/{addresses}', [AddressesController::class, 'destroyAddress']);
+    Route::put('/address/{addresses}', [AddressesController::class, 'updateAddress']);
 
     // ROTAS DE CATEGORIAS
     Route::post('/categories', [CategoriesController::class, 'createCategorie']);
@@ -81,34 +82,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-
-Route::post('/login', function (Request $request) {
-    $credentials = $request->only('email', 'password');
-
-    if (Auth::attempt($credentials)) {
-        $user = $request->user();
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            "access_token" => $token,
-            "token_type" => "Bearer",
-        ]);
-    }
-
-    return response()->json([
-        "message" => "Invalid credentials",
-    ], 401);
-
-});
-
-//ROTAS PUBLICAS
-Route::post('/register', [AuthController::class, 'register']);
-Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
-Route::get('/products', [ProductsController::class, 'getAllProducts']);
-Route::get('/products/{id}', [ProductsController::class, 'showProduct']);
-Route::get('/products/category/{categoryId}', [ProductsController::class, 'getProductsByCategory']);
-Route::get('/categories/{categories}', [CategoriesController::class, 'getCategoriesID']);
-Route::get('/discount', [DiscountsController::class, 'getAllDiscounts']);
+    //ROTAS PUBLICAS
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/categories', [CategoriesController::class, 'getAllCategories']);
+    Route::get('/products', [ProductsController::class, 'getAllProducts']);
+    Route::get('/products/{id}', [ProductsController::class, 'showProduct']);
+    Route::get('/products/category/{categoryId}', [ProductsController::class, 'getProductsByCategory']);
+    Route::get('/categories/{categories}', [CategoriesController::class, 'getCategoriesID']);
+    Route::get('/discount', [DiscountsController::class, 'getAllDiscounts']);
 
 

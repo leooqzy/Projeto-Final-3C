@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
-    public function index(Request $request)
+    public function getOrders(Request $request)
     {
         $user = $request->user();
         $orders = Orders::where('user_id', $user->id)
@@ -55,7 +55,7 @@ class OrdersController extends Controller
     }
 
 
-    public function store(Request $request)
+    public function createOrder(Request $request)
     {
         $user = $request->user();
 
@@ -70,7 +70,7 @@ class OrdersController extends Controller
 
         $validated = $request->validate([
             'address_id' => 'required|integer|exists:addresses,id',
-            'coupon_id' => 'nullable|integer|exists:coupons,id',
+            'coupon_name' => 'sometimes|string|exists:coupons,code',
         ]);
 
         $address = Addresses::where('id', $validated['address_id'])
@@ -92,7 +92,15 @@ class OrdersController extends Controller
         $order = new Orders();
         $order->user_id = $user->id;
         $order->address_id = $validated['address_id'];
-        $order->coupon_id = $validated['coupon_id'] ?? null;
+        if (!empty($validated['coupon_name'])) {
+    $coupon = Coupons::where('code', $validated['coupon_name'])->first();
+    if (!$coupon) {
+        return response()->json(['message' => 'Coupon not found'], 404);
+    }
+    $order->coupon_id = $coupon->id;
+} else {
+    $order->coupon_id = null;
+}
         $order->orderDate = now();
         $order->status = 'PENDING';
         $order->save();
@@ -145,7 +153,7 @@ class OrdersController extends Controller
         ];
 
         $subtotal = 0;
-        $desconto_produto = 0;
+        $discount_product = 0;
         foreach ($order->products as $product) {
             $unit_price = $product->price;
             $quantity = $product->pivot->quantity ?? 1;
@@ -155,27 +163,31 @@ class OrdersController extends Controller
             } elseif (isset($product->discount_percentage)) {
                 $discount = $product->discount_percentage;
             }
-            $desconto_produto += ($unit_price * $discount / 100) * $quantity;
+            $discount_product += ($unit_price * $discount / 100) * $quantity;
             $subtotal += $unit_price * $quantity;
         }
-        $valor_com_desconto_produto = $subtotal - $desconto_produto;
-        $desconto_cupom = 0;
+        $value_with_discount_product = $subtotal - $discount_product;
+        $discount_coupon = 0;
         if ($order->coupon_id) {
             $coupon = Coupons::find($order->coupon_id);
             if ($coupon) {
-                $desconto_cupom = $valor_com_desconto_produto * ($coupon->discountPercentage / 100);
+                $discountValue = $coupon->discountPercentage;
+                if ($discountValue > 1) {
+                    $discountValue = $discountValue / 100;
+                }
+                $discount_coupon = $value_with_discount_product * $discountValue;
             }
         }
-        $total = $valor_com_desconto_produto - $desconto_cupom;
+        $total = $value_with_discount_product - $discount_coupon;
         $response['subtotal'] = round($subtotal, 2);
-        $response['desconto_produto'] = round($desconto_produto, 2);
-        $response['desconto_cupom'] = round($desconto_cupom, 2);
+        $response['discount_product'] = round($discount_product, 2);
+        $response['discount_coupon'] = round($discount_coupon, 2);
         $response['total'] = round($total, 2);
 
         return response()->json($response, 201);
     }
 
-    public function show(Request $request, $id)
+    public function showOrder(Request $request, $id)
     {
         $user = $request->user();
         $order = Orders::where('id', $id)
@@ -218,11 +230,12 @@ class OrdersController extends Controller
             $discount = isset($product->discount_percentage) ? $product->discount_percentage : 0;
             $subtotal += $product->price * (1 - $discount / 100);
         }
-        $total = $subtotal;
+        $value_with_discount_product = $subtotal;
+        $discount_coupon = 0;
         if ($order->coupon_id) {
             $coupon = Coupons::find($order->coupon_id);
             if ($coupon) {
-                $total = $total * (1 - $coupon->discountPercentage / 100);
+                $discount_coupon = $value_with_discount_product * ($coupon->discountPercentage / 100);
             }
         }
         $response['total'] = round($total, 2);
@@ -230,7 +243,7 @@ class OrdersController extends Controller
         return response()->json($response, 200);
     }
 
-    public function update(Request $request, $id)
+    public function updateOrder(Request $request, $id)
     {
         $user = $request->user();
         if (!in_array($user->role, ['admin', 'moderator'])) {
@@ -312,7 +325,7 @@ class OrdersController extends Controller
         return response()->json($response, 200);
     }
 
-    public function destroy(Request $request, $id)
+    public function destroyOrder(Request $request, $id)
     {
         $user = $request->user();
         $order = Orders::where('id', $id)->where('user_id', $user->id)->first();
@@ -320,8 +333,13 @@ class OrdersController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        Orderitems::where('order_id', $order->id)->delete();
+        foreach ($order->products as $product) {
+            $quantity = $product->pivot->quantity ?? 1;
+            $product->stock += $quantity;
+            $product->save();
+        }
 
+        Orderitems::where('order_id', $order->id)->delete();
         $order->products()->detach();
         $order->delete();
         return response()->json(['message' => 'Order deleted successfully'], 200);

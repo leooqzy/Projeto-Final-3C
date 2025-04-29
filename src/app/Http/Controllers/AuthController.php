@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -27,6 +28,32 @@ class AuthController extends Controller
             'role' => $user->role
         ], 201);
     }
+
+    public function login(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:8',
+        ]);
+    
+        if (!Auth::attempt($validated)) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+    
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'id' => $user->id,
+            'role' => $user->role,
+            'token' => $token,
+        ], 200);
+    }
+    
 
     public function index()
     {

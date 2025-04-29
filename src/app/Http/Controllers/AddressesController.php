@@ -27,7 +27,7 @@ class AddressesController extends Controller
         return response()->json($addresses, 200);
     }
 
-    public function create(Request $request)
+    public function createAddress(Request $request)
     {
         $validated = $request->validate([
             'street' => 'required|string|max:255',
@@ -48,7 +48,7 @@ class AddressesController extends Controller
         ], 201);
     }
 
-    public function destroy(Addresses $addresses)
+    public function destroyAddress(Addresses $addresses)
     {
         $user = auth()->user();
 
@@ -65,10 +65,8 @@ class AddressesController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, Addresses $addresses)
+    public function updateAddress(Request $request, Addresses $addresses)
     {
-
-
         $validated = $request->validate([
             'street' => 'required|string|max:255',
             'number' => 'required|integer',
@@ -92,7 +90,7 @@ class AddressesController extends Controller
         ], 200);
     }
 
-    public function show(Addresses $addresses)
+    public function showAddress(Addresses $addresses)
     {
         $user = auth()->user();
         if ($user->role !== 'admin') {

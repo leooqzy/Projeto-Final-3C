@@ -15,4 +15,9 @@ class Coupons extends Model
         'endDate',
         'discountPercentage',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Orders::class);
+    }
 }

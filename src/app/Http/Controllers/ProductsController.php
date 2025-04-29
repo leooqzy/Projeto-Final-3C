@@ -113,9 +113,9 @@ class ProductsController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'stock' => 'required|integer',
-            'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id',
+            'stock' => 'sometimes|integer',
+            'price' => 'sometimes|numeric',
+            'category_id' => 'sometimes|exists:categories,id',
         ]);
 
         $product = Products::find($id);
